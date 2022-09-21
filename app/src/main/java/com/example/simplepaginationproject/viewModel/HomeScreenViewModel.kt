@@ -23,14 +23,20 @@ class HomeScreenViewModel(private val repository: APIRepository) : ViewModel() {
         response.enqueue(object : Callback<ImageResponse> {
             override fun onResponse(call: Call<ImageResponse>, response: Response<ImageResponse>) {
                 try {
-                    print("Response : "+response.body().toString())
-                    photoList.postValue(response.body())
-                    if(numberIndex == maxIndex){
-                        visibleFab.postValue(true)
-                    }
-                    if (numberIndex < maxIndex){
-                        index = numberIndex+1
-                        loadDatas(numberIndex+1, maxIndex)
+
+                    if (response.code() == 200) {
+                        photoList.postValue(response.body())
+                        if(numberIndex == maxIndex){
+                            visibleFab.postValue(true)
+                        }
+                        if (numberIndex < maxIndex){
+                            index = numberIndex+1
+                            loadDatas(numberIndex+1, maxIndex)
+                        }
+                    } else if (response.code() == 404){
+                        print("No data found")
+                    } else if (response.code() == 403){
+                    } else if (response.code() == 502){
                     }
 
                 } catch (e: Exception) {
