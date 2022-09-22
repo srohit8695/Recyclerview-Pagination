@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.example.simplepaginationproject.network.model.ImageResponse
 import com.example.simplepaginationproject.network.model.ImageResponseItem
 import com.example.simplepaginationproject.network.repository.APIRepository
+import com.example.simplepaginationproject.util.OnAPIResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -18,7 +19,7 @@ class HomeScreenViewModel(private val repository: APIRepository) : ViewModel() {
     var visibleFab = MutableLiveData<Boolean>()
 
 
-    fun loadDatas(numberIndex : Int, maxIndex : Int){
+    fun loadDatas(numberIndex : Int, maxIndex : Int, onAPIResponse: OnAPIResponse){
         val response = repository.getPhotos(numberIndex)
         response.enqueue(object : Callback<ImageResponse> {
             override fun onResponse(call: Call<ImageResponse>, response: Response<ImageResponse>) {
@@ -31,12 +32,15 @@ class HomeScreenViewModel(private val repository: APIRepository) : ViewModel() {
                         }
                         if (numberIndex < maxIndex){
                             index = numberIndex+1
-                            loadDatas(numberIndex+1, maxIndex)
+                            loadDatas(numberIndex+1, maxIndex, onAPIResponse)
                         }
                     } else if (response.code() == 404){
                         print("No data found")
+                        onAPIResponse.invoke("404 error ")
                     } else if (response.code() == 403){
+                        onAPIResponse.invoke("403 Forbidden")
                     } else if (response.code() == 502){
+                        onAPIResponse.invoke("502 bad gateway")
                     }
 
                 } catch (e: Exception) {
@@ -45,7 +49,7 @@ class HomeScreenViewModel(private val repository: APIRepository) : ViewModel() {
             }
 
             override fun onFailure(call: Call<ImageResponse>, t: Throwable) {
-                println(t.message.toString())
+                onAPIResponse.invoke("Throwable $t")
             }
         })
     }
