@@ -45,7 +45,7 @@ class HomeScreenViewModel(private val repository: APIRepository) : ViewModel() {
             }
 
             override fun onFailure(call: Call<ImageResponse>, t: Throwable) {
-
+                println(t.message.toString())
             }
         })
     }
